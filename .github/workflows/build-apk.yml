@@ -6,6 +6,7 @@ on:
   push:
     paths:
       - ".github/workflows/build-apk.yml"
+      - "OtakScroll-Siap-Build.zip"
 
 jobs:
   build:
@@ -39,12 +40,19 @@ jobs:
         with:
           gradle-version: "8.7"
 
+      - name: Verify project files
+        run: |
+          find OtakScroll -maxdepth 3 \
+            \( -name "settings.gradle*" -o -name "build.gradle*" \) \
+            -print
+
       - name: Build APK
         working-directory: OtakScroll
-        run: gradle assembleDebug
+        run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: OtakScroll-debug-apk
           path: OtakScroll/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
